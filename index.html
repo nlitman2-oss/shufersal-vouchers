@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#27a65a">
+  <title>שוברי שופרסל</title>
+  <style>
+    :root {
+      --green: #27a65a;
+      --green-dark: #1e8a49;
+      --green-pale: #f0faf4;
+      --red: #dc2626;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-500: #64748b;
+      --slate-700: #334155;
+      --slate-900: #0f172a;
+      --amber-50: #fffbeb;
+      --amber-200: #fde68a;
+      --amber-500: #f59e0b;
+      --amber-700: #b45309;
+      --amber-900: #78350f;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(180deg, var(--green-pale) 0%, #fff 50%);
+      color: var(--slate-900);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, textarea { font-family: inherit; font-size: inherit; }
+    button { cursor: pointer; border: none; background: transparent; }
+
+    /* Layout */
+    .app { max-width: 640px; margin: 0 auto; min-height: 100vh; padding: 20px 16px; }
+    .spacer { height: 1px; }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
+      border: 1px solid var(--slate-100);
+    }
+
+    /* Login screen */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      padding: 32px;
+      text-align: center;
+    }
+    .login-logo {
+      width: 56px; height: 56px;
+      margin: 0 auto 12px;
+      border-radius: 16px;
+      background: var(--green);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 24px;
+    }
+    .login-title { font-size: 22px; font-weight: 700; margin: 0 0 4px; }
+    .login-subtitle { color: var(--slate-500); font-size: 14px; margin: 0 0 24px; }
+    .pin-input {
+      width: 100%;
+      padding: 16px;
+      text-align: center;
+      font-size: 24px;
+      letter-spacing: 0.4em;
+      border: 1px solid var(--slate-200);
+      background: var(--slate-50);
+      border-radius: 12px;
+      outline: none;
+    }
+    .pin-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(39,166,90,.2); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background .12s, transform .05s;
+      min-height: 44px;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--green); color: #fff; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-primary[disabled] { opacity: .5; cursor: not-allowed; }
+    .btn-ghost { background: var(--slate-100); color: var(--slate-700); }
+    .btn-ghost:hover { background: var(--slate-200); }
+    .btn-danger-outline {
+      background: #fff;
+      color: var(--red);
+      border: 1px solid #fecaca;
+    }
+    .btn-danger-outline:hover { background: #fff1f2; }
+    .btn-block { width: 100%; }
+    .btn-lg { padding: 16px 22px; font-size: 17px; min-height: 56px; }
+
+    .error-box {
+      background: #fef2f2;
+      color: #991b1b;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    /* Header */
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+    .top h1 { margin: 0; font-size: 26px; font-weight: 700; }
+    .top .meta { margin-top: 4px; color: var(--slate-500); font-size: 13px; }
+    .top .meta b { color: var(--green-dark); }
+    .logout-btn {
+      font-size: 14px;
+      color: var(--slate-500);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .logout-btn:hover { background: var(--slate-100); }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .link-btn {
+      color: var(--slate-500);
+      font-size: 13px;
+      text-decoration: underline;
+      background: transparent;
+      padding: 4px 6px;
+    }
+
+    /* Voucher list */
+    .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+    .voucher {
+      padding: 16px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--slate-100);
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+    }
+    .voucher-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .voucher-amount {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--green-dark);
+      line-height: 1;
+    }
+    .voucher-store {
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--slate-700);
+      word-break: break-word;
+    }
+    .voucher-date {
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .voucher-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .voucher-actions .btn-primary { flex: 1 1 auto; min-width: 160px; }
+
+    /* Empty */
+    .empty {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--slate-500);
+      line-height: 1.8;
+      border: 1px solid var(--slate-100);
+    }
+    .empty b { color: var(--slate-700); }
+
+    /* Banner */
+    .banner {
+      padding: 12px 14px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .banner-info { background: #eff6ff; color: #1e3a8a; }
+    .banner-warning { background: var(--amber-50); color: var(--amber-900); border: 1px solid var(--amber-200); }
+    .banner-warning .banner-actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+    @media (min-width: 640px) {
+      .modal-backdrop { align-items: center; }
+    }
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 460px;
+      padding: 20px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0,0,0,.2);
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .modal-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
+    .close-btn {
+      padding: 6px;
+      color: var(--slate-500);
+      font-size: 20px;
+      border-radius: 8px;
+    }
+    .close-btn:hover { background: var(--slate-100); }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .field label { font-size: 13px; color: var(--slate-700); font-weight: 600; }
+    .input, .textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      background: var(--slate-50);
+      outline: none;
+      font-size: 15px;
+    }
+    .textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+    .input:focus, .textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(39,166,90,.15); }
+
+    /* Cashier screen */
+    .cashier-back {
+      display: inline-block;
+      color: var(--slate-500);
+      font-size: 14px;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      border-radius: 8px;
+    }
+    .cashier-back:hover { background: var(--slate-100); }
+    .cashier-card {
+      padding: 32px 24px;
+      border-radius: 24px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 10px 30px rgba(0,0,0,.05);
+      border: 1px solid var(--slate-100);
+      text-align: center;
+    }
+    .cashier-label {
+      font-size: 12px;
+      letter-spacing: .15em;
+      color: var(--green-dark);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .cashier-amount {
+      font-size: 64px;
+      font-weight: 800;
+      margin: 12px 0 8px;
+      line-height: 1;
+    }
+    .cashier-store {
+      font-size: 16px;
+      color: var(--slate-700);
+      margin-bottom: 4px;
+    }
+    .cashier-date { font-size: 13px; color: var(--slate-500); }
+    .cashier-open {
+      margin-top: 24px;
+      display: block;
+      padding: 20px;
+      background: var(--green);
+      color: #fff;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(39,166,90,.3);
+    }
+    .cashier-open:hover { background: var(--green-dark); }
+    .cashier-open-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none !important; }
+
+    /* Config screen */
+    .config-hint {
+      padding: 8px 14px;
+      background: var(--slate-100);
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--slate-700);
+      margin-top: 12px;
+      word-break: break-all;
+      direction: ltr;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app"></div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    // ====== Config ======
+    // PASTE your Google Apps Script Web App URL here after deployment.
+    // Format: https://script.google.com/macros/s/XXXXXX/exec
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyIOQqPEaUvXiwFnRvBgnZxD9seQUnSrCUiJ83tBxDM3Vgu5I85MzaVUZXuQ6-Iuhc/exec';
+
+    // PIN required to enter the app. 4-8 digits.
+    // Change this to any number you like and it is enforced client-side only
+    // (this is a personal tool, not a high-security system).
+    var APP_PIN = '1234';
+
+    var LS_VOUCHERS = 'sv_vouchers_v1';
+    var LS_AUTH = 'sv_authed_v1';
+
+    // ====== State ======
+    var state = {
+      view: 'login',          // 'login' | 'list' | 'cashier' | 'config'
+      cashierId: null,
+      vouchers: loadLocal(),
+      loading: false,
+      syncing: false,
+      error: null,
+      addOpen: false,
+      justUsedId: null        // shows "delete SMS" reminder banner once after marking used
+    };
+
+    function loadLocal() {
+      try {
+        var raw = localStorage.getItem(LS_VOUCHERS);
+        if (!raw) return [];
+        var arr = JSON.parse(raw);
+        return Array.isArray(arr) ? arr : [];
+      } catch (e) { return []; }
+    }
+    function saveLocal() {
+      try { localStorage.setItem(LS_VOUCHERS, JSON.stringify(state.vouchers)); } catch (e) {}
+    }
+    function isAuthed() { return localStorage.getItem(LS_AUTH) === '1'; }
+    function setAuthed(on) {
+      if (on) localStorage.setItem(LS_AUTH, '1');
+      else localStorage.removeItem(LS_AUTH);
+    }
+
+    // ====== Cloud sync ======
+    function isCloudConfigured() {
+      return !!SCRIPT_URL && SCRIPT_URL.indexOf('script.google.com') !== -1;
+    }
+
+    function fetchFromCloud() {
+      if (!isCloudConfigured()) return Promise.resolve(null);
+      var url = SCRIPT_URL + '?action=getVouchers&_t=' + Date.now();
+      return fetch(url, { redirect: 'follow' })
+        .then(function (r) { return r.json(); })
+        .catch(function () { return null; });
+    }
+
+    function cloudGet(action, params) {
+      if (!isCloudConfigured()) return Promise.resolve({ ok: false, offline: true });
+      var q = '?action=' + encodeURIComponent(action) + '&_t=' + Date.now();
+      for (var k in params) {
+        if (Object.prototype.hasOwnProperty.call(params, k)) {
+          q += '&' + k + '=' + encodeURIComponent(params[k]);
+        }
+      }
+      return fetch(SCRIPT_URL + q, { redirect: 'follow' })
+        .then(function (r) { return r.json(); })
+        .catch(function () { return { ok: false, offline: true }; });
+    }
+
+    function refreshFromCloud() {
+      if (!isCloudConfigured()) { render(); return Promise.resolve(); }
+      state.syncing = true; render();
+      return fetchFromCloud().then(function (cloud) {
+        if (Array.isArray(cloud)) {
+          state.vouchers = cloud;
+          saveLocal();
+        }
+        state.syncing = false;
+        render();
+      });
+    }
+
+    // ====== SMS parser (mirror of Apps Script parser) ======
+    function parseCibusSms(raw) {
+      var text = String(raw).replace(/\r/g, '');
+      var res = { storeName: null, amount: null, purchaseDate: null, voucherLink: '' };
+
+      var linkMatch = text.match(/https:\/\/myconsumers\.pluxee\.co\.il\/[^\s]+/i);
+      if (linkMatch) res.voucherLink = linkMatch[0].replace(/[)\].,;]+$/, '');
+
+      var amountSym = text.match(/₪\s*([\d,]+(?:\.\d{1,2})?)/);
+      if (amountSym) res.amount = Number(amountSym[1].replace(/,/g, ''));
+
+      var iso = text.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (iso) {
+        res.purchaseDate = iso[1] + '-' + pad2(iso[2]) + '-' + pad2(iso[3]);
+      } else {
+        var dmy = text.match(/(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})/);
+        if (dmy) {
+          var y = dmy[3]; if (y.length === 2) y = '20' + y;
+          res.purchaseDate = y + '-' + pad2(dmy[2]) + '-' + pad2(dmy[1]);
+        }
+      }
+
+      var storeMatch = text.match(/השובר\s+שלך\s+ל[\u05be\-]\s*(.+?)\s+מחכה/);
+      if (storeMatch) {
+        res.storeName = storeMatch[1].trim();
+      } else {
+        var fb = text.match(/שופרסל[^\n]*/);
+        if (fb) res.storeName = fb[0].replace(/מחכה.*$/, '').trim();
+      }
+      return res;
+    }
+    function pad2(s) { s = String(s); return s.length < 2 ? '0' + s : s; }
+
+    // ====== Helpers ======
+    function formatILS(n) {
+      if (n == null || isNaN(Number(n))) return '';
+      return '₪' + Number(n).toFixed(2);
+    }
+    function formatDate(iso) {
+      if (!iso) return '';
+      var m = String(iso).match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (!m) return String(iso);
+      return m[3] + '/' + m[2] + '/' + m[1];
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+    function byId(id) { return document.getElementById(id); }
+
+    // ====== Render ======
+    function render() {
+      var root = byId('app');
+      if (!isAuthed()) { renderLogin(root); return; }
+      if (state.view === 'cashier' && state.cashierId) {
+        renderCashier(root);
+        return;
+      }
+      renderList(root);
+    }
+
+    function renderLogin(root) {
+      root.innerHTML = [
+        '<div class="login-wrap">',
+        '  <div class="card login-card">',
+        '    <div class="login-logo">ש</div>',
+        '    <h1 class="login-title">שוברי שופרסל</h1>',
+        '    <p class="login-subtitle">הזיני קוד כניסה</p>',
+        '    <form id="pin-form">',
+        '      <input id="pin-input" class="pin-input" type="password" inputmode="numeric" ',
+        '             autocomplete="one-time-code" pattern="\\d{4,8}" minlength="4" maxlength="8" ',
+        '             required placeholder="\u2022\u2022\u2022\u2022">',
+        '      <div id="pin-error" class="error-box hidden"></div>',
+        '      <button class="btn btn-primary btn-block" style="margin-top:12px" type="submit">כניסה</button>',
+        '    </form>',
+        '  </div>',
+        '</div>'
+      ].join('');
+
+      var form = byId('pin-form');
+      var input = byId('pin-input');
+      input.focus();
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var val = (input.value || '').replace(/\D/g, '');
+        if (val === APP_PIN) {
+          setAuthed(true);
+          state.view = 'list';
+          render();
+          refreshFromCloud();
+        } else {
+          var err = byId('pin-error');
+          err.textContent = 'קוד שגוי';
+          err.classList.remove('hidden');
+          input.value = '';
+          input.focus();
+        }
+      });
+    }
+
+    function renderList(root) {
+      var active = state.vouchers;
+      var total = active.reduce(function (sum, v) {
+        return sum + (Number(v.amount) || 0);
+      }, 0);
+
+      var warningBanner = '';
+      if (state.justUsedId) {
+        warningBanner = [
+          '<div class="banner banner-warning">',
+          '  <b>השובר סומן כנוצל והוסר מהרשימה.</b><br>',
+          '  תזכורת: iOS לא מאפשר מחיקה אוטומטית של הודעות SMS. מומלץ למחוק ידנית את ההודעה של השובר.',
+          '  <div class="banner-actions">',
+          '    <a class="btn btn-ghost" href="sms:" style="text-decoration:none">פתחי את אפליקציית ההודעות</a>',
+          '    <button class="btn btn-ghost" id="dismiss-banner">סגור</button>',
+          '  </div>',
+          '</div>'
+        ].join('');
+      }
+
+      var configBanner = '';
+      if (!isCloudConfigured()) {
+        configBanner = [
+          '<div class="banner banner-info">',
+          '  <b>מצב מקומי בלבד:</b> עדיין לא הוגדר Google Apps Script, הנתונים נשמרים בדפדפן הזה בלבד.',
+          '  ראי README להוראות הגדרה.',
+          '</div>'
+        ].join('');
+      }
+
+      var errorBanner = state.error ? ('<div class="banner banner-warning">' + escapeHtml(state.error) + '</div>') : '';
+
+      var listHtml;
+      if (state.loading) {
+        listHtml = '<div class="empty">טוען\u2026</div>';
+      } else if (active.length === 0) {
+        listHtml = [
+          '<div class="empty">',
+          '  <b>אין שוברים כרגע.</b><br>',
+          '  הוסיפי שובר חדש דרך הכפתור למעלה או הגדירי אוטומציית SMS.',
+          '</div>'
+        ].join('');
+      } else {
+        listHtml = '<ul class="list">' + active.map(voucherHtml).join('') + '</ul>';
+      }
+
+      root.innerHTML = [
+        '<header class="top">',
+        '  <div>',
+        '    <h1>שוברי שופרסל</h1>',
+        '    <div class="meta">',
+        '      יתרה: <b>' + formatILS(total) + '</b>',
+        '      &middot; ' + active.length + ' שוברים',
+        (state.syncing ? ' &middot; מסנכרן\u2026' : ''),
+        '    </div>',
+        '  </div>',
+        '  <button class="logout-btn" id="btn-logout">יציאה</button>',
+        '</header>',
+        warningBanner,
+        configBanner,
+        errorBanner,
+        '<div class="toolbar">',
+        '  <button class="btn btn-primary" id="btn-add">+ הוסף שובר</button>',
+        '  <button class="link-btn" id="btn-refresh">רענן</button>',
+        '</div>',
+        listHtml,
+        state.addOpen ? renderAddModal() : ''
+      ].join('');
+
+      byId('btn-logout').addEventListener('click', function () {
+        setAuthed(false);
+        state.view = 'login';
+        render();
+      });
+      byId('btn-add').addEventListener('click', function () {
+        state.addOpen = true; render();
+      });
+      byId('btn-refresh').addEventListener('click', refreshFromCloud);
+
+      var dismiss = byId('dismiss-banner');
+      if (dismiss) dismiss.addEventListener('click', function () {
+        state.justUsedId = null; render();
+      });
+
+      document.querySelectorAll('[data-action="show"]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          state.view = 'cashier';
+          state.cashierId = b.getAttribute('data-id');
+          render();
+        });
+      });
+      document.querySelectorAll('[data-action="delete"]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (!confirm('למחוק את השובר לצמיתות?')) return;
+          removeVoucher(b.getAttribute('data-id'), false);
+        });
+      });
+
+      if (state.addOpen) wireAddModal();
+    }
+
+    function voucherHtml(v) {
+      return [
+        '<li class="voucher">',
+        '  <div class="voucher-head">',
+        '    <div class="voucher-amount">' + escapeHtml(formatILS(v.amount)) + '</div>',
+        '  </div>',
+        '  <div class="voucher-store">' + escapeHtml(v.store_name || 'שובר שופרסל') + '</div>',
+        (v.purchase_date ? '<div class="voucher-date">נרכש: ' + escapeHtml(formatDate(v.purchase_date)) + '</div>' : ''),
+        '  <div class="voucher-actions">',
+        '    <button class="btn btn-primary" data-action="show" data-id="' + escapeHtml(v.id) + '">הצג לקופאית</button>',
+        '    <button class="btn btn-danger-outline" data-action="delete" data-id="' + escapeHtml(v.id) + '">מחק</button>',
+        '  </div>',
+        '</li>'
+      ].join('');
+    }
+
+    function renderAddModal() {
+      return [
+        '<div class="modal-backdrop" id="modal-backdrop">',
+        '  <div class="modal" id="modal">',
+        '    <div class="modal-head">',
+        '      <h2>הוספת שובר</h2>',
+        '      <button class="close-btn" id="modal-close" aria-label="סגור">\u2715</button>',
+        '    </div>',
+        '    <form id="add-form">',
+        '      <div class="field">',
+        '        <label for="sms-text">הדביקי את תוכן ה-SMS המלא:</label>',
+        '        <textarea id="sms-text" class="textarea" dir="rtl" required placeholder="היי ...&#10;השובר שלך ל־שופרסל...&#10;סכום: ₪100.00&#10;נרכש ב־2026-03-21&#10;לצפייה ומימוש: https://myconsumers.pluxee.co.il/..."></textarea>',
+        '      </div>',
+        '      <div id="add-error" class="error-box hidden"></div>',
+        '      <button type="submit" class="btn btn-primary btn-block">הוסף שובר</button>',
+        '    </form>',
+        '  </div>',
+        '</div>'
+      ].join('');
+    }
+
+    function wireAddModal() {
+      byId('modal-backdrop').addEventListener('click', function (e) {
+        if (e.target === byId('modal-backdrop')) { state.addOpen = false; render(); }
+      });
+      byId('modal-close').addEventListener('click', function () {
+        state.addOpen = false; render();
+      });
+      byId('add-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var txt = byId('sms-text').value;
+        var err = byId('add-error');
+        var parsed = parseCibusSms(txt);
+        if (!parsed.voucherLink) {
+          err.textContent = 'לא נמצא קישור למימוש בהודעה (צריך להופיע קישור myconsumers.pluxee.co.il).';
+          err.classList.remove('hidden');
+          return;
+        }
+        addVoucher(parsed);
+      });
+      setTimeout(function () {
+        var ta = byId('sms-text');
+        if (ta) ta.focus();
+      }, 50);
+    }
+
+    function addVoucher(parsed) {
+      if (state.vouchers.some(function (v) { return v.voucher_link === parsed.voucherLink; })) {
+        alert('שובר עם אותו קישור כבר קיים ברשימה.');
+        state.addOpen = false; render();
+        return;
+      }
+
+      var nowIso = new Date().toISOString();
+      var localId = 'local_' + Date.now();
+      var voucher = {
+        id: localId,
+        created_at: nowIso,
+        store_name: parsed.storeName || '',
+        amount: parsed.amount,
+        purchase_date: parsed.purchaseDate || '',
+        voucher_link: parsed.voucherLink
+      };
+      state.vouchers.unshift(voucher);
+      saveLocal();
+      state.addOpen = false;
+      state.error = null;
+      render();
+
+      if (isCloudConfigured()) {
+        cloudGet('add', {
+          voucher_link: parsed.voucherLink,
+          store_name: parsed.storeName || '',
+          amount: parsed.amount == null ? '' : parsed.amount,
+          purchase_date: parsed.purchaseDate || ''
+        }).then(function (res) {
+          // Re-fetch from cloud to pick up the real id from the sheet.
+          return fetchFromCloud();
+        }).then(function (cloud) {
+          if (Array.isArray(cloud)) {
+            state.vouchers = cloud;
+            saveLocal();
+            render();
+          }
+        });
+      }
+    }
+
+    function removeVoucher(id, markedUsed) {
+      var idx = -1;
+      for (var i = 0; i < state.vouchers.length; i++) {
+        if (state.vouchers[i].id === id) { idx = i; break; }
+      }
+      if (idx === -1) return;
+      state.vouchers.splice(idx, 1);
+      saveLocal();
+      if (markedUsed) {
+        state.justUsedId = id;
+        state.view = 'list';
+        state.cashierId = null;
+      }
+      render();
+
+      if (isCloudConfigured()) {
+        cloudGet(markedUsed ? 'markUsed' : 'delete', { id: id })
+          .then(refreshFromCloud);
+      }
+    }
+
+    function renderCashier(root) {
+      var v = null;
+      for (var i = 0; i < state.vouchers.length; i++) {
+        if (state.vouchers[i].id === state.cashierId) { v = state.vouchers[i]; break; }
+      }
+      if (!v) {
+        state.view = 'list';
+        state.cashierId = null;
+        render();
+        return;
+      }
+
+      root.innerHTML = [
+        '<a class="cashier-back" href="#" id="back-to-list">\u2192 חזרה לרשימה</a>',
+        '<div class="cashier-card">',
+        '  <div class="cashier-label">שובר שופרסל</div>',
+        '  <div class="cashier-amount">' + escapeHtml(formatILS(v.amount)) + '</div>',
+        (v.store_name ? '<div class="cashier-store">' + escapeHtml(v.store_name) + '</div>' : ''),
+        (v.purchase_date ? '<div class="cashier-date">נרכש: ' + escapeHtml(formatDate(v.purchase_date)) + '</div>' : ''),
+        '  <a class="cashier-open" href="' + escapeHtml(v.voucher_link) + '" target="_blank" rel="noopener noreferrer">',
+        '    פתחי את השובר להצגה לקופאית',
+        '  </a>',
+        '  <div class="cashier-open-hint">הקישור ייפתח ב-Pluxee/Cibus ויציג את הברקוד.</div>',
+        '</div>',
+        '<div class="spacer" style="height:16px"></div>',
+        '<button class="btn btn-ghost btn-block btn-lg" id="mark-used">\u2713 השובר נוצל - מחק מהרשימה</button>'
+      ].join('');
+
+      byId('back-to-list').addEventListener('click', function (e) {
+        e.preventDefault();
+        state.view = 'list';
+        state.cashierId = null;
+        render();
+      });
+      byId('mark-used').addEventListener('click', function () {
+        removeVoucher(v.id, true);
+      });
+    }
+
+    // ====== Bootstrap ======
+    render();
+    if (isAuthed() && isCloudConfigured()) refreshFromCloud();
+
+    // Refresh when returning focus to the tab.
+    window.addEventListener('focus', function () {
+      if (isAuthed() && isCloudConfigured() && state.view === 'list') {
+        refreshFromCloud();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
